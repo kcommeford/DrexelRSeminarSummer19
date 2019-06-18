@@ -4,24 +4,51 @@ output: html_document
 ---
 Ok, this is my first effort at making a course in RStudio.
 
-To get to this point you've done the basics of getting R installed, RStudio, and connecting it to Git.
+To get to this point you've done the basics of getting R installed, RStudio, and connecting it to Git. *done*
 
-You will want to Fork this Repo to make your own. 
+You will want to Fork this Repo to make your own. *done*
 
 To get started you'll need to install some packages, they are:
 
-here, pacman, tidyverse
+here, pacman, tidyverse *done*
 
 In order to get started, you have an assignment: 
 I have provided in the data folder several files that include the test responses and the grades for two classes, as well as a grading key. 
 
 The first part of this course will get you going and require you to clean up this data - NO EXCEL!!!!
 
-I want a script that imports the data, combines it all into one dataframe, and that correlates the test score with the quiz 1 grade and quiz 2 grade.  
+I want a script that imports the data *done*, combines it all into one dataframe *done*, and that correlates the test score with the quiz 1 grade and quiz 2 grade *done*.  
 
 
 ```{r SetupEnvironment, echo=FALSE}
-pacman::p_load(here, tidyverse)
+pacman::p_load(here, tidyverse, dplyr, plyr, ggpubr )
 
+```
+
+
+Make the data pretty! First read in the csv files to data frames. Rename columns so they match between the two data sets (can't bind them without matching names). Select the columns to keep and bind. Bind!
+```{r}
+AnonCourseGrades1712 <- read.csv("data/AnonCourseGrades1712.csv")
+AnonCourseGrades1812 <- read.csv("data/AnonCourseGrades1812.csv")
+
+names(AnonCourseGrades1712)[names(AnonCourseGrades1712)=="Q1..Total.Pts..100...1447316"] <- "Quiz1_Percent"
+names(AnonCourseGrades1712)[names(AnonCourseGrades1712)=="Q2..Total.Pts..100...1447318"] <- "Quiz2_Percent"
+
+names(AnonCourseGrades1812)[names(AnonCourseGrades1812)=="Quiz1..Total.Pts..90.Score...1719589"] <- "Quiz1_Percent"
+names(AnonCourseGrades1812)[names(AnonCourseGrades1812)=="Quiz2..Total.Pts..100.Score...1719590"] <- "Quiz2_Percent"
+
+
+AnonCourseGrades1712$Course = 1712
+AnonCourseGrades1812$Course = 1812
+
+BothCourses <- rbind(select(AnonCourseGrades1712,"Course", "ID", "Quiz1_Percent","Quiz2_Percent"),select(AnonCourseGrades1812,"Course","ID","Quiz1_Percent","Quiz2_Percent"))
+```
+
+
+```{r}
+ggscatter(BothCourses, x = "Quiz1_Percent", y = "Quiz2_Percent", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Quiz 1 Score", ylab = "Quiz 2 Score")
 ```
 
